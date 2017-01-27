@@ -1,0 +1,65 @@
+{
+	"version": 0,
+	"dependencies": [
+		{
+			"importpath": "code.cloudfoundry.org/lager",
+			"repository": "https://github.com/cloudfoundry/lager",
+			"vcs": "git",
+			"revision": "6cfe365fb6bb84343f0034b4a53cd250d173b61f",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/golang/protobuf/proto/testdata",
+			"repository": "https://github.com/golang/protobuf",
+			"vcs": "git",
+			"revision": "8ee79997227bf9b34611aee7946ae64735e6fd93",
+			"branch": "master",
+			"path": "/proto/testdata",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/onsi/ginkgo",
+			"repository": "https://github.com/onsi/ginkgo",
+			"vcs": "git",
+			"revision": "bb93381d543b0e5725244abe752214a110791d01",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/onsi/gomega/format",
+			"repository": "https://github.com/onsi/gomega",
+			"vcs": "git",
+			"revision": "e85f63af4302dc0e4277c6008ecf803f1d80e4f0",
+			"branch": "master",
+			"path": "format",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/onsi/gomega/gbytes",
+			"repository": "https://github.com/onsi/gomega",
+			"vcs": "git",
+			"revision": "e85f63af4302dc0e4277c6008ecf803f1d80e4f0",
+			"branch": "master",
+			"path": "/gbytes",
+			"notests": true
+		},
+		{
+			"importpath": "github.com/pivotal-cf/om",
+			"repository": "https://github.com/pivotal-cf/om",
+			"vcs": "git",
+			"revision": "f7df4b39b04f7e0b91ac9c58c18a2f8a5b509cd2",
+			"branch": "master",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/sys/unix",
+			"repository": "https://go.googlesource.com/sys",
+			"vcs": "git",
+			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
+			"branch": "master",
+			"path": "/unix",
+			"notests": true
+		}
+	]
+}
