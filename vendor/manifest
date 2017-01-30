@@ -53,12 +53,47 @@
 			"notests": true
 		},
 		{
+			"importpath": "golang.org/x/crypto/curve25519",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "a59c127441a8ae2ad9b0fb300ab36a6558bba697",
+			"branch": "master",
+			"path": "curve25519",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ed25519",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "a59c127441a8ae2ad9b0fb300ab36a6558bba697",
+			"branch": "master",
+			"path": "ed25519",
+			"notests": true
+		},
+		{
+			"importpath": "golang.org/x/crypto/ssh",
+			"repository": "https://go.googlesource.com/crypto",
+			"vcs": "git",
+			"revision": "a59c127441a8ae2ad9b0fb300ab36a6558bba697",
+			"branch": "master",
+			"path": "/ssh",
+			"notests": true
+		},
+		{
 			"importpath": "golang.org/x/sys/unix",
 			"repository": "https://go.googlesource.com/sys",
 			"vcs": "git",
 			"revision": "d75a52659825e75fff6158388dddc6a5b04f9ba5",
 			"branch": "master",
 			"path": "/unix",
+			"notests": true
+		},
+		{
+			"importpath": "gopkg.in/hypersleep/easyssh.v0",
+			"repository": "https://gopkg.in/hypersleep/easyssh.v0",
+			"vcs": "git",
+			"revision": "1542e726150822ceaa64a8180298d0e5407c6989",
+			"branch": "v0",
 			"notests": true
 		}
 	]
