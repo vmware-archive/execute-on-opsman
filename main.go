@@ -39,6 +39,7 @@ func main() {
 		stdout.Fatal(err)
 	}
 	requestService := api.NewRequestService(authedClient)
+	sshClient := commands.NewSSHClient(stdout, stderr)
 
 	var command string
 	if len(args) > 0 {
@@ -51,7 +52,7 @@ func main() {
 	}
 
 	commandSet := omcommands.Set{}
-	commandSet["bosh"] = commands.NewBoshCommand(requestService, uri.Host, stdout, stderr)
+	commandSet["bosh"] = commands.NewBoshCommand(requestService, sshClient, uri.Host, stdout, stderr)
 	err = commandSet.Execute(command, args)
 	if err != nil {
 		stdout.Fatal(err)

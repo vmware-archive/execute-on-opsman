@@ -6,8 +6,9 @@ import (
 	"strings"
 
 	"github.com/pivotal-cf-experimental/execute-on-opsman/commands"
+	"github.com/pivotal-cf-experimental/execute-on-opsman/commands/fakes"
 	"github.com/pivotal-cf/om/api"
-	"github.com/pivotal-cf/om/commands/fakes"
+	omfakes "github.com/pivotal-cf/om/commands/fakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -17,15 +18,17 @@ var _ = Describe("Bosh", func() {
 	Describe("Execute", func() {
 		var (
 			command        commands.Bosh
-			requestService *fakes.RequestService
-			stdout         *fakes.Logger
-			stderr         *fakes.Logger
+			requestService *omfakes.RequestService
+			sshClient      *fakes.SSHClient
+			stdout         *omfakes.Logger
+			stderr         *omfakes.Logger
 		)
 
 		BeforeEach(func() {
-			requestService = &fakes.RequestService{}
-			stdout = &fakes.Logger{}
-			stderr = &fakes.Logger{}
+			requestService = &omfakes.RequestService{}
+			stdout = &omfakes.Logger{}
+			stderr = &omfakes.Logger{}
+			sshClient = &fakes.SSHClient{}
 			requestService.InvokeStub = func(input api.RequestServiceInvokeInput) (api.RequestServiceInvokeOutput, error) {
 				if input.Path == "/api/v0/deployed/products/" {
 					return api.RequestServiceInvokeOutput{
@@ -36,18 +39,18 @@ var _ = Describe("Bosh", func() {
 						},
 						Body: strings.NewReader(`[
 							{
-								"installation_name": "p-bosh-62a54920334b1f91fcb3",
-								"guid": "p-bosh-62a54920334b1f91fcb3",
+								"installation_name": "p-bosh-guid",
+								"guid": "p-bosh-guid",
 								"type": "p-bosh"
 							},
 							{
-								"installation_name": "cf-88b75fe421f5630ad6b4",
-								"guid": "cf-88b75fe421f5630ad6b4",
+								"installation_name": "cf-guid",
+								"guid": "cf-guid",
 								"type": "cf"
 							}
 						]`),
 					}, nil
-				} else if input.Path == "/api/v0/deployed/director/manifest" {
+				} else if input.Path == "/api/v0/deployed/director/manifest/" {
 					return api.RequestServiceInvokeOutput{
 						StatusCode: http.StatusOK,
 						Headers: http.Header{
@@ -74,16 +77,64 @@ var _ = Describe("Bosh", func() {
 				}
 				return api.RequestServiceInvokeOutput{}, fmt.Errorf("not supported")
 			}
-			command = commands.NewBoshCommand(requestService, "pcf.jitterbug.gcp.london.cf-app.com.com", stdout, stderr)
+			command = commands.NewBoshCommand(requestService, sshClient, "pcf.example.com", stdout, stderr)
 		})
 
 		It("executes the bosh command", func() {
 			err := command.Execute([]string{
-				"--ssh-key", "/Users/pivotal/workspace/london-meta/gcp-environments/jitterbug/jitterbug-pcf.pem",
+				"--ssh-key", "/path/to/key.pem",
+				"--command", "stop",
 				"--product-name", "cf",
-				"--command", "status",
 			})
-			Ω(err).ToNot(HaveOccurred())
+			Expect(err).ToNot(HaveOccurred())
+
+			input := requestService.InvokeArgsForCall(0)
+			Expect(input.Path).To(Equal("/api/v0/deployed/director/manifest/"))
+			Expect(input.Method).To(Equal("GET"))
+
+			input = requestService.InvokeArgsForCall(1)
+			Expect(input.Path).To(Equal("/api/v0/deployed/products/"))
+			Expect(input.Method).To(Equal("GET"))
+
+			Expect(sshClient.ExecuteOnRemoteCallCount()).To(Equal(1))
+			sshInput := sshClient.ExecuteOnRemoteArgsForCall(0)
+			Expect(sshInput.SSHKeyPath).To(Equal("/path/to/key.pem"))
+			Expect(sshInput.Host).To(Equal("pcf.example.com"))
+			Expect(sshInput.Env).To(ContainElement(`BOSH_CLIENT="ops_manager"`))
+			Expect(sshInput.Env).To(ContainElement(`BOSH_CLIENT_SECRET="opsman_secret"`))
+			Expect(sshInput.Env).To(ContainElement(`BUNDLE_GEMFILE=/home/tempest-web/tempest/web/vendor/bosh/Gemfile`))
+
+			Expect(sshInput.Command).To(ContainElement(`bundle exec bosh`))
+			Expect(sshInput.Command).To(ContainElement(`-n`))
+			Expect(sshInput.Command).To(ContainElement(`--ca-cert /var/tempest/workspaces/default/root_ca_certificate`))
+			Expect(sshInput.Command).To(ContainElement(`-t 10.0.4.2`))
+			Expect(sshInput.Command).To(ContainElement(`-d /var/tempest/workspaces/default/deployments/cf-guid.yml`))
+			Expect(sshInput.Command).To(ContainElement(`stop`))
+		})
+
+		Context("when no product name is specified", func() {
+			It("doesn't include deployment manifest", func() {
+				err := command.Execute([]string{
+					"--ssh-key", "/path/to/key.pem",
+					"--command", "stop",
+				})
+				Ω(err).ToNot(HaveOccurred())
+
+				Expect(requestService.InvokeCallCount()).To(Equal(1))
+				input := requestService.InvokeArgsForCall(0)
+				Expect(input.Path).To(Equal("/api/v0/deployed/director/manifest/"))
+				Expect(input.Method).To(Equal("GET"))
+			})
+		})
+
+		Context("Validation", func() {
+			It("fails when no ssh is provided", func() {
+				err := command.Execute([]string{
+					"--command", "stop",
+				})
+				Expect(err).To(HaveOccurred())
+				Expect(err.Error()).To(Equal("ssh key path cannot be empty"))
+			})
 		})
 	})
 })
