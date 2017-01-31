@@ -1,6 +1,6 @@
 # execute-on-opsman
 
-Tool to execute commands from an OpsManager VM
+Tool to execute bosh commands from an OpsManager VM
 
 ## Usage
 
@@ -8,6 +8,20 @@ Tool to execute commands from an OpsManager VM
 execute-on-opsman --target <opsman url> \
                   --username <opsman username> \
                   --password <opsman password> \
-                  [--ssh-key-path <path to ssh key>]
-                  command
+                  bosh
+                  --ssh-key-path <path to ssh key>
+                  [--product-name <product name>]
+                  --command <bosh command>
+```
+
+## Example
+
+```
+execute-on-opsman --target https://pcf.opsman.com \
+                  --username example_user \
+                  --password example_password \
+                  bosh
+                  --ssh-key-path ./key.pem
+                  --product-name cf
+                  --command stop
 ```
