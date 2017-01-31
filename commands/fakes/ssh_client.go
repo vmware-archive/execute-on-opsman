@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"github.com/pivotal-cf-experimental/execute-on-opsman/commands"
+	"github.com/pivotal-cf/execute-on-opsman/commands"
 )
 
 type SSHClient struct {

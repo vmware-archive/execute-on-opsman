@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/pivotal-cf-experimental/execute-on-opsman/commands"
-	"github.com/pivotal-cf-experimental/execute-on-opsman/commands/fakes"
+	"github.com/pivotal-cf/execute-on-opsman/commands"
+	"github.com/pivotal-cf/execute-on-opsman/commands/fakes"
 	"github.com/pivotal-cf/om/api"
 	omfakes "github.com/pivotal-cf/om/commands/fakes"
 

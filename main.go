@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/pivotal-cf-experimental/execute-on-opsman/commands"
+	"github.com/pivotal-cf/execute-on-opsman/commands"
 	"github.com/pivotal-cf/om/api"
 	omcommands "github.com/pivotal-cf/om/commands"
 	"github.com/pivotal-cf/om/flags"
