@@ -25,7 +25,7 @@ type Bosh struct {
 	stderr         logger
 	host           string
 	Options        struct {
-		SSHKeyPath  string `short:"i" long:"ssh-key"      description:"path to ssh key"`
+		SSHKeyPath  string `short:"i" long:"ssh-key-path" description:"path to ssh key"`
 		ProductName string `short:"p" long:"product-name" description:"Product name"`
 		Command     string `short:"c" long:"command"      description:"bosh command to execute"`
 	}
