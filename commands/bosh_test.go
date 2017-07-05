@@ -97,7 +97,7 @@ var _ = Describe("Bosh", func() {
 
 		It("executes the bosh command", func() {
 			err := command.Execute([]string{
-				"--ssh-key", "/path/to/key.pem",
+				"--ssh-key-path", "/path/to/key.pem",
 				"--command", "stop",
 				"--product-name", "cf",
 			})
@@ -130,7 +130,7 @@ var _ = Describe("Bosh", func() {
 		Context("when no product name is specified", func() {
 			It("doesn't include deployment manifest", func() {
 				err := command.Execute([]string{
-					"--ssh-key", "/path/to/key.pem",
+					"--ssh-key-path", "/path/to/key.pem",
 					"--command", "stop",
 				})
 				Ω(err).ToNot(HaveOccurred())
