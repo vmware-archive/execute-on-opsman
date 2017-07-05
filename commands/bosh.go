@@ -41,6 +41,7 @@ type Bosh struct {
 	host           string
 	Options        struct {
 		SSHKeyPath  string `short:"i" long:"ssh-key-path" description:"path to ssh key"`
+		SSHPassword string `long:"ssh-password" description:"opsman ssh password"`
 		ProductName string `short:"p" long:"product-name" description:"Product name"`
 		Command     string `short:"c" long:"command"      description:"bosh command to execute"`
 	}
@@ -89,8 +90,8 @@ func (b Bosh) Execute(args []string) error {
 		return fmt.Errorf("could not parse curl flags: %s", err)
 	}
 
-	if b.Options.SSHKeyPath == "" {
-		return fmt.Errorf("ssh key path cannot be empty")
+	if b.Options.SSHKeyPath == "" && b.Options.SSHPassword == "" {
+		return fmt.Errorf("either ssh key path or the opsman ssh password must be provided")
 	}
 
 	manifest, err := b.getDirectorManifest()
@@ -122,10 +123,11 @@ func (b Bosh) Execute(args []string) error {
 	boshCmd = append(boshCmd, b.Options.Command)
 
 	return b.ssh.ExecuteOnRemote(ExecuteOnRemoteInput{
-		Host:       b.host,
-		SSHKeyPath: b.Options.SSHKeyPath,
-		Env:        boshEnv,
-		Command:    boshCmd,
+		Host:        b.host,
+		SSHKeyPath:  b.Options.SSHKeyPath,
+		SSHPassword: b.Options.SSHPassword,
+		Env:         boshEnv,
+		Command:     boshCmd,
 	})
 }
 

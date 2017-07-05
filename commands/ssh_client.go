@@ -31,10 +31,11 @@ type SSHClient interface {
 }
 
 type ExecuteOnRemoteInput struct {
-	Host       string
-	SSHKeyPath string
-	Env        []string
-	Command    []string
+	Host        string
+	SSHKeyPath  string
+	SSHPassword string
+	Env         []string
+	Command     []string
 }
 
 type sshClient struct {
@@ -47,17 +48,23 @@ func NewSSHClient(stdout, stderr logger) SSHClient {
 }
 
 func (s *sshClient) ExecuteOnRemote(input ExecuteOnRemoteInput) error {
-	pemBytes, err := ioutil.ReadFile(input.SSHKeyPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+	var auths []ssh.AuthMethod
 
-	signer, err := ssh.ParsePrivateKey(pemBytes)
-	if err != nil {
-		log.Fatal(err)
-	}
+	if input.SSHPassword != "" {
+		auths = []ssh.AuthMethod{ssh.Password(input.SSHPassword)}
+	} else {
+		pemBytes, err := ioutil.ReadFile(input.SSHKeyPath)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	auths := []ssh.AuthMethod{ssh.PublicKeys(signer)}
+		signer, err := ssh.ParsePrivateKey(pemBytes)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		auths = []ssh.AuthMethod{ssh.PublicKeys(signer)}
+	}
 
 	cfg := &ssh.ClientConfig{
 		User: "ubuntu",

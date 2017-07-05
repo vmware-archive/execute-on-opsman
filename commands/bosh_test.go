@@ -127,6 +127,38 @@ var _ = Describe("Bosh", func() {
 			Expect(sshInput.Command).To(ContainElement(`stop`))
 		})
 
+		It("executes the bosh command", func() {
+			err := command.Execute([]string{
+				"--ssh-password", "fancy-password",
+				"--command", "stop",
+				"--product-name", "cf",
+			})
+			Expect(err).ToNot(HaveOccurred())
+
+			input := requestService.InvokeArgsForCall(0)
+			Expect(input.Path).To(Equal("/api/v0/deployed/director/manifest/"))
+			Expect(input.Method).To(Equal("GET"))
+
+			input = requestService.InvokeArgsForCall(1)
+			Expect(input.Path).To(Equal("/api/v0/deployed/products/"))
+			Expect(input.Method).To(Equal("GET"))
+
+			Expect(sshClient.ExecuteOnRemoteCallCount()).To(Equal(1))
+			sshInput := sshClient.ExecuteOnRemoteArgsForCall(0)
+			Expect(sshInput.SSHPassword).To(Equal("fancy-password"))
+			Expect(sshInput.Host).To(Equal("pcf.example.com"))
+			Expect(sshInput.Env).To(ContainElement(`BOSH_CLIENT="ops_manager"`))
+			Expect(sshInput.Env).To(ContainElement(`BOSH_CLIENT_SECRET="opsman_secret"`))
+			Expect(sshInput.Env).To(ContainElement(`BUNDLE_GEMFILE=/home/tempest-web/tempest/web/vendor/bosh/Gemfile`))
+
+			Expect(sshInput.Command).To(ContainElement(`bundle exec bosh`))
+			Expect(sshInput.Command).To(ContainElement(`-n`))
+			Expect(sshInput.Command).To(ContainElement(`--ca-cert /var/tempest/workspaces/default/root_ca_certificate`))
+			Expect(sshInput.Command).To(ContainElement(`-t 10.0.4.2`))
+			Expect(sshInput.Command).To(ContainElement(`-d /var/tempest/workspaces/default/deployments/cf-guid.yml`))
+			Expect(sshInput.Command).To(ContainElement(`stop`))
+		})
+
 		Context("when no product name is specified", func() {
 			It("doesn't include deployment manifest", func() {
 				err := command.Execute([]string{
@@ -148,7 +180,7 @@ var _ = Describe("Bosh", func() {
 					"--command", "stop",
 				})
 				Expect(err).To(HaveOccurred())
-				Expect(err.Error()).To(Equal("ssh key path cannot be empty"))
+				Expect(err.Error()).To(Equal("either ssh key path or the opsman ssh password must be provided"))
 			})
 		})
 	})
